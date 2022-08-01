@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jb.currency_exchange.beans.CurrencyExchangeDetails;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,29 +19,12 @@ public class CurrencyService {
     private final String URL = "https://api.exchangerate-api.com/v4/latest/ILS";
     private Map<String, Double> rates = new HashMap<>();
 
-    public CurrencyExchangeDetails getExchange(String from, String to, double amount) throws JsonProcessingException {
-        /*
-        String data =restTemplate.getForObject(URL+from,String.class);
-        double rate=new JSONObject(data)
-                .getJSONObject("rates")
-                .getDouble(to);
-        return CurrencyExchangeDetails
-                .builder()
-                .from(from)
-                .to(to)
-                .amount(amount)
-                .result(amount * rate)
-                .build();
 
-         */
+    public CurrencyExchangeDetails getExchange(String from, String to, double amount) throws JsonProcessingException {
         double sum = 1;
-        //double fromRate=rates.get(from.toUpperCase());
-        //double toRate=rates.get(to.toUpperCase());
-        //
         if (rates.isEmpty()) {
             getCurr();
         }
-
         if (from.equalsIgnoreCase("ils") && to.equalsIgnoreCase("ils")) {
             sum = amount;
         } else if (from.equalsIgnoreCase("ils")) {
@@ -54,7 +35,7 @@ public class CurrencyService {
             sum = amount * (rates.get(to.toUpperCase()) /  rates.get(from.toUpperCase()));
         }
 
-
+        sum=Math.round(sum*100.0)/100.0;
         //sum=amount*toRate/fromRate;
         return new CurrencyExchangeDetails(from, to, amount, sum);
     }
